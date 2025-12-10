@@ -16,5 +16,18 @@ pipeline {
                 '''
             }
         }
+
+        stage('Test') {
+            steps{
+                step {
+                    name: 'Run Unit Tests'
+                    script {
+                        sh '''
+                            test -f build/index.html
+                            npm run test:ci
+                        '''
+                    }
+            }
+        }
     }
 }
