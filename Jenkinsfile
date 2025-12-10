@@ -27,6 +27,7 @@ pipeline {
                             npm run test:ci
                         '''
                     }
+                }
             }
         }
     }
