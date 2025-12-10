@@ -1,10 +1,19 @@
 pipeline {
     agent any
-
+    tools {
+        nodejs 'NodeJS_24'
+    }
     stages {
-        stage('Hello') {
+        stage("Build") {
             steps {
-                echo 'Hello World'
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                '''
             }
         }
     }
