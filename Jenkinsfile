@@ -30,9 +30,7 @@ pipeline {
             steps{
                 sh '''
                     npm install serve
-                    // don't block, run serve in background
                     node_modules/.bin/serve -s build &
-                    // wait for serve to start
                     sleep 10
                     npx playwright test
                 '''
