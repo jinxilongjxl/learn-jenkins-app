@@ -25,6 +25,17 @@ pipeline {
                 '''
             }
         }
+
+        stage('E2E') {
+            steps{
+                sh '''
+                    npm install serve
+                    node_modules/.bin/serve -s build
+                    npx playwright test
+                '''
+            }
+        }
+
     }
 
     post{
