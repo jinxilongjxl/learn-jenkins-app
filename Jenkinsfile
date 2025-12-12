@@ -4,7 +4,6 @@ pipeline {
         nodejs 'NodeJS_24'
     }
     stages {
-
         stage("Build") {
             steps {
                 sh '''
@@ -20,7 +19,7 @@ pipeline {
 
         stage("Tests") {
             parallel {
-                stage('Unit Test') {
+                stage('Test') {
                     steps{
                         sh '''
                             test -f build/index.html
@@ -31,7 +30,7 @@ pipeline {
                         always {
                             junit 'jest-results/junit.xml'
                         }
-                    }
+                    }                    
                 }
 
                 stage('E2E') {
@@ -49,6 +48,7 @@ pipeline {
                             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
+                }
             }
         }
     }
