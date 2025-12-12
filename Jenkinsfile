@@ -4,6 +4,7 @@ pipeline {
         nodejs 'NodeJS_24'
     }
     stages {
+
         stage("Build") {
             steps {
                 sh '''
@@ -17,33 +18,38 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps{
-                sh '''
-                    test -f build/index.html
-                    npm test
-                '''
+        stage("Tests") {
+            parallel {
+                stage('Unit Test') {
+                    steps{
+                        sh '''
+                            test -f build/index.html
+                            npm test
+                        '''
+                    }
+                    post{
+                        always {
+                            junit 'jest-results/junit.xml'
+                        }
+                    }
+                }
+
+                stage('E2E') {
+                    steps{
+                        sh '''
+                            npm install serve
+                            node_modules/.bin/serve -s build &
+                            sleep 10
+                            # npx playwright install
+                            npx playwright test --reporter=html
+                        '''
+                    }
+                    post{
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
             }
-        }
-
-        stage('E2E') {
-            steps{
-                sh '''
-                    npm install serve
-                    node_modules/.bin/serve -s build &
-                    sleep 10
-                    # npx playwright install
-                    npx playwright test --reporter=html
-                '''
-            }
-        }
-
-    }
-
-    post{
-        always {
-            junit 'jest-results/junit.xml'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
