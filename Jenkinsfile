@@ -33,6 +33,7 @@ pipeline {
                     node_modules/.bin/serve -s build &
                     sleep 10
                     npx playwright install
+                    npx playwright install-deps chromium
                     npx playwright test --reporter=html
                 '''
             }
