@@ -36,7 +36,7 @@ pipeline {
                         always {
                             junit 'jest-results/junit.xml'
                         }
-                    }                    
+                    }
                 }
 
                 stage('E2E') {
@@ -65,6 +65,7 @@ pipeline {
                     node_modules/.bin/netlify --version
                     echo "Deploying to production. Netlify site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod 
                 '''
             }
         }
