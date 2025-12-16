@@ -49,7 +49,7 @@ pipeline {
                             npx playwright test --reporter=html
                         '''
                     }
-                    
+
                     post{
                         always {
                             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Playwright Report - local', reportTitles: '', useWrapperFileDirectly: true])
@@ -59,7 +59,19 @@ pipeline {
             }
         }
 
-        stage("Deploy") {
+        stage("Deploy Staging") {
+            steps {
+                sh '''
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to Staging. Netlify site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build
+                '''
+            }
+        }        
+
+        stage("Deploy Prod") {
             steps {
                 sh '''
                     npm install netlify-cli
