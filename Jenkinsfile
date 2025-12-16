@@ -51,7 +51,7 @@ pipeline {
                     }
                     post{
                         always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Playwright Report - local', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
                 }
@@ -65,10 +65,28 @@ pipeline {
                     node_modules/.bin/netlify --version
                     echo "Deploying to production. Netlify site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod 
+                    node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
         }
 
+        stage('Prod E2E') {
+
+            environment {
+                CI_ENVIRONMENT_URL = "https://serene-duckanoo-144d72.netlify.app/"
+            }
+
+            steps{
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+
+            post{
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Playwright Report - Prod', reportTitles: '', useWrapperFileDirectly: true])
+                }
+            }
+        }
     }
 }
