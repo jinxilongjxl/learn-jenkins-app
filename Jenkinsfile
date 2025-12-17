@@ -10,7 +10,7 @@ pipeline {
         nodejs 'NodeJS_24'
     }
     stages {
-        stage("Build") {
+        stage('Build') {
             steps {
                 sh '''
                     ls -la
@@ -23,16 +23,17 @@ pipeline {
             }
         }
 
-        stage("Tests") {
+        stage('Tests') {
             parallel {
                 stage('Test') {
-                    steps{
+                    steps {
                         sh '''
                             test -f build/index.html
                             npm test
                         '''
                     }
-                    post{
+
+                    post {
                         always {
                             junit 'jest-results/junit.xml'
                         }
@@ -59,7 +60,7 @@ pipeline {
             }
         }
 
-        stage("Deploy Staging") {
+        stage('Deploy Staging') {
             steps {
                 sh '''
                     npm install netlify-cli node-jq
@@ -93,7 +94,7 @@ pipeline {
             }
         }
 
-        stage("Prod Approval") {
+        stage('Prod Approval') {
             steps {
                 timeout(time: 1, unit: 'MINUTES') {
                     input message: 'Ready to deploy to Production?', ok: 'Yes, I am sure I want to deploy!'
@@ -101,19 +102,7 @@ pipeline {
             }
         }
 
-        stage("Deploy Prod") {
-            steps {
-                sh '''
-                    npm install netlify-cli
-                    node_modules/.bin/netlify --version
-                    echo "Deploying to production. Netlify site ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
-                '''
-            }
-        }
-
-        stage('Prod E2E') {
+        stage('Deploy Prod') {
 
             environment {
                 CI_ENVIRONMENT_URL = "https://serene-duckanoo-144d72.netlify.app/"
@@ -121,6 +110,12 @@ pipeline {
 
             steps{
                 sh '''
+                    node --version
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to production. Netlify site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
                     npx playwright test --reporter=html
                 '''
             }
