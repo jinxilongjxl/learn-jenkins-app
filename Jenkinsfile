@@ -63,7 +63,7 @@ pipeline {
         stage('Deploy Staging') {
 
             environment {
-                CI_ENVIRONMENT_URL = ""
+                CI_ENVIRONMENT_URL = "SIGNAL_URL_TO_BE_SET"
             }
 
             steps{
