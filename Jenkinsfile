@@ -61,28 +61,19 @@ pipeline {
         }
 
         stage('Deploy Staging') {
-            steps {
+
+            environment {
+                CI_ENVIRONMENT_URL = ""
+            }
+
+            steps{
                 sh '''
                     npm install netlify-cli node-jq
                     node_modules/.bin/netlify --version
                     echo "Deploying to Staging. Netlify site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                '''
-                script {
-                    env.STAGING_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json", returnStdout: true)
-                }
-            }
-        }
-
-        stage('Staging E2E') {
-
-            environment {
-                CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
-            }
-
-            steps{
-                sh '''
+                    CI_ENVIRONMENT_URL =$(node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json)
                     npx playwright test --reporter=html
                 '''
             }
@@ -94,13 +85,13 @@ pipeline {
             }
         }
 
-        stage('Prod Approval') {
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    input message: 'Ready to deploy to Production?', ok: 'Yes, I am sure I want to deploy!'
-                }
-            }
-        }
+        // stage('Prod Approval') {
+        //     steps {
+        //         timeout(time: 1, unit: 'MINUTES') {
+        //             input message: 'Ready to deploy to Production?', ok: 'Yes, I am sure I want to deploy!'
+        //         }
+        //     }
+        // }
 
         stage('Deploy Prod') {
 
